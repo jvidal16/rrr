@@ -107,8 +107,8 @@ def generate_display():
     layout.split_column(
         Layout(name="header", size=3),
         Layout(name="summary_row", size=15),
-        Layout(name="images", size=12),
-        Layout(name="containers", size=12),
+        Layout(name="images", size=5),
+        Layout(name="containers", size=5),
         Layout(name="footer", size=1)
     )
 
