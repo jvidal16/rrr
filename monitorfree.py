@@ -106,17 +106,16 @@ def generate_display():
     # Split into sections
     layout.split_column(
         Layout(name="header", size=3),
-        Layout(name="summary_row", size=8),
+        Layout(name="summary_row", size=15),
         Layout(name="images", size=12),
         Layout(name="containers", size=12),
-        Layout(name="stats"),
         Layout(name="footer", size=1)
     )
 
-    # Split summary row to make summary occupy half width
+    # Split summary row: Summary occupies 1/3, Resource Usage occupies 2/3
     layout["summary_row"].split_row(
-        Layout(name="summary"),
-        Layout(name="summary_spacer")
+        Layout(name="summary", ratio=1),
+        Layout(name="resource_usage", ratio=2)
     )
 
     # Header
@@ -137,8 +136,29 @@ def generate_display():
     summary_table.add_row("Stopped:", f"[red]{stopped}[/red]")
 
     layout["summary"].update(Panel(summary_table, title="Summary", border_style="blue"))
-    layout["summary_spacer"].update(Panel("", border_style="dim"))
-    
+
+    # Resource Usage (adjacent to Summary, occupies 2/3 width)
+    if stats:
+        stats_table = Table(show_header=True, header_style="bold magenta", expand=True)
+        stats_table.add_column("Name", style="cyan", no_wrap=True)
+        stats_table.add_column("CPU Usage", width=25)
+        stats_table.add_column("Memory Usage", width=25)
+
+        for stat in stats[:5]:  # Show top 5
+            cpu_percent = float(stat['CPUPerc'].rstrip('%'))
+            mem_percent = float(stat['MemPerc'].rstrip('%'))
+
+            stats_table.add_row(
+                stat['Name'][:25],
+                create_bar(cpu_percent, width=10),
+                create_bar(mem_percent, width=10)
+            )
+
+        layout["resource_usage"].update(Panel(stats_table, title="Resource Usage", border_style="green"))
+    else:
+        layout["resource_usage"].update(Panel("[yellow]No running containers[/yellow]",
+                                    title="Resource Usage", border_style="green"))
+
     # Images Table
     images_table = Table(show_header=True, header_style="bold magenta", expand=True)
     images_table.add_column("Repository", style="cyan", no_wrap=True)
@@ -183,29 +203,7 @@ def generate_display():
         containers_table.add_row("No containers", "", "", "")
     
     layout["containers"].update(Panel(containers_table, title="Docker Containers", border_style="magenta"))
-    
-    # Stats Table
-    if stats:
-        stats_table = Table(show_header=True, header_style="bold magenta", expand=True)
-        stats_table.add_column("Name", style="cyan", no_wrap=True)
-        stats_table.add_column("CPU Usage", width=35)
-        stats_table.add_column("Memory Usage", width=35)
-        
-        for stat in stats[:5]:  # Show top 5
-            cpu_percent = float(stat['CPUPerc'].rstrip('%'))
-            mem_percent = float(stat['MemPerc'].rstrip('%'))
-            
-            stats_table.add_row(
-                stat['Name'][:25],
-                create_bar(cpu_percent, width=15),
-                create_bar(mem_percent, width=15)
-            )
-        
-        layout["stats"].update(Panel(stats_table, title="Resource Usage", border_style="green"))
-    else:
-        layout["stats"].update(Panel("[yellow]No running containers[/yellow]", 
-                                    title="Resource Usage", border_style="green"))
-    
+
     # Footer
     footer_text = Text("Press Ctrl+C to exit | Auto-refresh every 2 seconds", 
                       style="dim", justify="center")
