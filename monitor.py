@@ -117,12 +117,17 @@ def display_summary(images, containers):
     """Display summary statistics"""
     running = sum(1 for c in containers if c['State'] == 'running')
     stopped = len(containers) - running
-    
-    print(f"{Colors.BOLD}Summary:{Colors.RESET}")
-    print(f"  Docker Images:    {Colors.CYAN}{len(images)}{Colors.RESET}")
-    print(f"  Total Containers: {Colors.CYAN}{len(containers)}{Colors.RESET}")
-    print(f"  Running:          {Colors.GREEN}{running}{Colors.RESET}")
-    print(f"  Stopped:          {Colors.RED}{stopped}{Colors.RESET}")
+
+    # Summary box with 40 columns width (half of standard 80-column screen)
+    width = 40
+    print(f"{Colors.BOLD}{'╔' + '═' * (width - 2) + '╗'}{Colors.RESET}")
+    print(f"{Colors.BOLD}║ {'Summary':<{width - 4}} ║{Colors.RESET}")
+    print(f"{Colors.BOLD}{'╠' + '═' * (width - 2) + '╣'}{Colors.RESET}")
+    print(f"║ Docker Images:    {Colors.CYAN}{len(images):<{width - 23}}{Colors.RESET}║")
+    print(f"║ Total Containers: {Colors.CYAN}{len(containers):<{width - 23}}{Colors.RESET}║")
+    print(f"║ Running:          {Colors.GREEN}{running:<{width - 23}}{Colors.RESET}║")
+    print(f"║ Stopped:          {Colors.RED}{stopped:<{width - 23}}{Colors.RESET}║")
+    print(f"{Colors.BOLD}{'╚' + '═' * (width - 2) + '╝'}{Colors.RESET}")
     print()
 
 def display_images(images):

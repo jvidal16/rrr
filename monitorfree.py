@@ -106,31 +106,38 @@ def generate_display():
     # Split into sections
     layout.split_column(
         Layout(name="header", size=3),
-        Layout(name="summary", size=8),
+        Layout(name="summary_row", size=8),
         Layout(name="images", size=12),
         Layout(name="containers", size=12),
         Layout(name="stats"),
         Layout(name="footer", size=1)
     )
-    
+
+    # Split summary row to make summary occupy half width
+    layout["summary_row"].split_row(
+        Layout(name="summary"),
+        Layout(name="summary_spacer")
+    )
+
     # Header
     header_text = Text("Docker Monitor - Flicker Free", style="bold cyan", justify="center")
     layout["header"].update(Panel(header_text, border_style="cyan"))
-    
-    # Summary
+
+    # Summary (now occupies only half the width)
     running = sum(1 for c in containers if c['State'] == 'running')
     stopped = len(containers) - running
-    
+
     summary_table = Table.grid(padding=(0, 2))
     summary_table.add_column(style="bold")
     summary_table.add_column()
-    
+
     summary_table.add_row("Docker Images:", f"[cyan]{len(images)}[/cyan]")
     summary_table.add_row("Total Containers:", f"[cyan]{len(containers)}[/cyan]")
     summary_table.add_row("Running:", f"[green]{running}[/green]")
     summary_table.add_row("Stopped:", f"[red]{stopped}[/red]")
-    
+
     layout["summary"].update(Panel(summary_table, title="Summary", border_style="blue"))
+    layout["summary_spacer"].update(Panel("", border_style="dim"))
     
     # Images Table
     images_table = Table(show_header=True, header_style="bold magenta", expand=True)
